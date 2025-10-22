@@ -259,6 +259,60 @@ Each module will go inside its own folder under `app/api/v1/`.
 | `pip freeze > requirements.txt`   | Save dependencies          |
 
 ---
+# Connecting firebase
+
+* made a firebase projec in firebase console, generated a new api key, it downloaded a file that i kept in root folder along with ".env" file.
+* Then added it in env file.
+* told about this new api key in config file
+
+created a new file named *firebase.py* in folder - *core* and inserted below code:
+```python
+
+# app/core/firebase.py
+import firebase_admin
+from firebase_admin import credentials, firestore
+import os
+
+_firebase_app = None
+_firestore_client = None
+
+def init_firebase():
+    """
+    Initialize Firebase Admin SDK and Firestore client
+    """
+    global _firebase_app, _firestore_client
+    if _firebase_app is not None:
+        return _firebase_app, _firestore_client
+
+    # Read service account path from environment variable
+    sa_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH", "./serviceAccount.json")
+
+    if not os.path.exists(sa_path):
+        raise FileNotFoundError(f"Service account JSON not found at {sa_path}")
+
+    cred = credentials.Certificate(sa_path)
+    _firebase_app = firebase_admin.initialize_app(cred)
+    _firestore_client = firestore.client()
+    return _firebase_app, _firestore_client
+
+def get_firestore():
+    if _firestore_client is None:
+        init_firebase()
+    return _firestore_client
+
+```
+
+in main.py added this block:
+```python
+
+from app.core.firebase import init_firebase, get_firestore
+
+@app.on_event("startup")
+def startup_event():
+    app, db = init_firebase()
+    print("✅ Firebase connected:", db)
+```
+---
 
 ## 🧔 Author
 
