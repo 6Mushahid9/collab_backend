@@ -27,13 +27,13 @@ server/
 │   ├── core/                # Core configuration & global setup
 │   │   ├── config.py        # Environment variables, app settings
 │   │   ├── firebase.py      # Firebase Admin SDK initialization
-│   │   └── **init**.py
+│   │   └── __init__.py
 │   │
 │   ├── api/                 # (Future) API route folders
 │   │   └── v1/
-│   │       └── **init**.py
+│   │       └── __init__.py
 │   │
-│   └── **init**.py
+│   └── __init__.py
 │
 ├── .env                     # Stores environment variables (not committed)
 ├── requirements.txt          # All required dependencies
@@ -116,45 +116,6 @@ class Settings(BaseSettings):
 
 settings = Settings()
 ```
-
----
-
-### **`core/firebase.py`**
-
-Handles Firebase Admin setup for the backend.
-
-**Purpose:**
-
-* Load service account credentials
-* Initialize Firebase Admin SDK
-* Allow Firestore, Authentication, etc.
-
-**Example:**
-
-```python
-import firebase_admin
-from firebase_admin import credentials
-
-cred = credentials.Certificate("path/to/serviceAccountKey.json")
-firebase_app = firebase_admin.initialize_app(cred)
-```
-
----
-
-### **`.env`**
-
-Holds environment variables safely outside of the source code.
-
-**Example:**
-
-```
-PROJECT_NAME=Collab Hub
-FIREBASE_CREDENTIALS=serviceAccountKey.json
-BACKEND_CORS_ORIGINS=["http://localhost:3000"]
-```
-
-> ⚠️ Remember: Never commit `.env` or Firebase credentials to GitHub.
-> Add them to `.gitignore`.
 
 ---
 
@@ -247,18 +208,6 @@ You can easily extend this backend by adding:
 Each module will go inside its own folder under `app/api/v1/`.
 
 ---
-
-## 🚀 Commands Recap
-
-| Command                           | Purpose                    |
-| --------------------------------- | -------------------------- |
-| `python -m venv venv`             | Create virtual environment |
-| `venv\Scripts\activate`           | Activate it (Windows)      |
-| `pip install -r requirements.txt` | Install dependencies       |
-| `uvicorn app.main:app --reload`   | Run backend                |
-| `pip freeze > requirements.txt`   | Save dependencies          |
-
----
 # Connecting firebase
 
 * made a firebase projec in firebase console, generated a new api key, it downloaded a file that i kept in root folder along with ".env" file.
@@ -313,7 +262,35 @@ def startup_event():
     print("✅ Firebase connected:", db)
 ```
 ---
+## Working with Schemas Services and Routes
 
+✅ To build a User feature in FastAPI + Firebase, you’ll need 3 layers:
+
+| Layer                  | File Example      | Purpose                                                                        | Folder          |
+| ---------------------- | ----------------- | ------------------------------------------------------------------------------ | --------------- |
+| **1️⃣ Schema / Model** | `user.py`         | Defines what a user looks like — fields, types, validation                     | `app/schemas/`  |
+| **2️⃣ Service**        | `user_service.py` | Handles database operations (create, fetch, update, delete) and business logic | `app/services/` |
+| **3️⃣ Route**          | `users.py`        | Exposes HTTP endpoints that call the service functions                         | `app/routers/`  |
+
+
+Then in your app/main.py, you’ll import and include the router, like this:
+
+```python
+from app.routers import users
+
+app.include_router(users.router)
+```
+
+Therefore the flow is — models → services → routes → main.py.
+
+---
+
+## Connecting to firebase
+
+In google console see that it have Mail id given in serviceAccount.json file as "client_mail" and make sure it have roles: "Cloud Datastore User" & "Firebase Admin"
+
+At this phase i was able to connect and add user in database
+---
 ## 🧔 Author
 
 **Mushahid Khisal Ansari**
