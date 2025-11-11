@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase ID Token Generator</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // TODO: 🔧 Replace with your Firebase web app config
+    const firebaseConfig = {
+  apiKey: "AIzaSyCpIZxeYhqrahNTykKLpa1yxBF8hgOkiMc",
+  authDomain: "collabhub-fe362.firebaseapp.com",
+  projectId: "collabhub-fe362",
+  storageBucket: "collabhub-fe362.firebasestorage.app",
+  messagingSenderId: "64939438523",
+  appId: "1:64939438523:web:e79f916b40cea37278949e",
+  measurementId: "G-NHRVRHPTFM"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.getToken = async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const output = document.getElementById("output");
+
+      output.textContent = "Logging in...";
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const token = await userCredential.user.getIdToken(true); // get fresh token
+        console.log("User logged in:", userCredential.user);
+        output.textContent = token;
+        console.log("✅ Firebase ID Token:", token);
+      } catch (err) {
+        output.textContent = "❌ " + err.message;
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    input, button {
+      margin: 6px;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+    }
+    input { width: 250px; }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    pre {
+      margin-top: 20px;
+      max-width: 80%;
+      word-wrap: break-word;
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>🔐 Firebase ID Token Generator</h2>
+  <input id="email" type="email" placeholder="Enter Firebase email" />
+  <input id="password" type="password" placeholder="Enter password" />
+  <button onclick="getToken()">Get Token</button>
+
+  <pre id="output">Token will appear here...</pre>
+</body>
+</html>
